@@ -4,44 +4,61 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.example.demoFormySQL.model.Employee;
 import com.example.demoFormySQL.repository.EmployeeRepository;
 
 @Service
-public class EmployeeServiceImpl implements EmployeeService{
+public class EmployeeServiceImpl implements EmployeeService {
 
 	@Autowired
 	private EmployeeRepository employeeRepository;
+
 	@Override
 	public List<Employee> getAllEmployees() {
 		// TODO Auto-generated method stub
 		return employeeRepository.findAll();
 	}
+
 	@Override
 	public void saveEmployee(Employee employee) {
 		// TODO Auto-generated method stub
-		
+
 		this.employeeRepository.save(employee);
 	}
+
 	@Override
 	public Employee getEmployeeById(long Id) {
 		// TODO Auto-generated method stub
 		Optional<Employee> optional = employeeRepository.findById(Id);
-		Employee employee =null;
+		Employee employee = null;
 		if (optional.isPresent()) {
 			employee = optional.get();
-		}else {
-			throw new RuntimeException("Employee not found for "+ Id);
+		} else {
+			throw new RuntimeException("Employee not found for " + Id);
 		}
 		return employee;
 	}
+
 	@Override
 	public void deleteEmployeeById(long Id) {
 		// TODO Auto-generated method stub
 		this.employeeRepository.deleteById(Id);
-		
+
+	}
+
+	@Override
+	public Page<Employee> findPaginated(int pageNo, int pageSize, String sortField, String sortDirection) {
+		// TODO Auto-generated method stub
+		Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortField).ascending(): Sort.by(sortField).descending();
+
+		Pageable pageable = PageRequest.of(pageNo - 1, pageSize, sort);
+		return this.employeeRepository.findAll(pageable);
 	}
 
 }
